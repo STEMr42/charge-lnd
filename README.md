@@ -138,6 +138,7 @@ Currently available properties:
 | **node.max_channels** | match on number of channels the peer node has|# of channels|
 | **node.min_capacity** | match on node total capacity|# of sats|
 | **node.max_capacity** | match on node total capacity|# of sats|
+| **node.match_channels** | match if single peer node|# of channels|
 
 File references should contain 1 item per line
 ### Strategies
