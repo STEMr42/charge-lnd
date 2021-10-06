@@ -1,3 +1,4 @@
+ 
 #!/usr/bin/env python3
 import sys
 import re
@@ -82,7 +83,8 @@ class Policies:
         self.lnd = lnd
         self.config = config
 
-    def get_policy_for(self, channel):
+    def get_policy_for(self, channel, channels):
+        self.channels = channels
         # iterate policies, find channel match based on matchers. If no match, use default if defined
         policy = Policy(self.lnd)
 
@@ -125,7 +127,8 @@ class Policies:
     def match_by_node(self, channel, config):
         accepted = ['id',
                     'min_channels','max_channels',
-                    'min_capacity','max_capacity'
+                    'min_capacity','max_capacity',
+                    'match_channels'
                     ]
         for key in config.keys():
             if key.split(".")[0] == 'node' and key.split(".")[1] not in accepted:
@@ -146,6 +149,15 @@ class Policies:
 
         node_info = self.lnd.get_node_info(channel.remote_pubkey)
 
+        # Look for matched channel count - non routable peer
+        if 'node.match_channels' in config and config.getint('node.match_channels') == 1:
+            count = sum(c.remote_pubkey == channel.remote_pubkey for c in self.channels)
+            if count != node_info.num_channels:
+                return False
+        if 'node.match_channels' in config and not config.getint('node.match_channels') == 1:
+            return False
+ 
+        # Node matches
         if 'node.min_channels' in config and not config.getint('node.min_channels') <= node_info.num_channels:
             return False
         if 'node.max_channels' in config and not config.getint('node.max_channels') >= node_info.num_channels:
