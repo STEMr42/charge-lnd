@@ -46,8 +46,9 @@ def main():
     my_pubkey = lnd.get_own_pubkey()
 
     channels = lnd.get_channels()
+    #print(channels)
     for channel in channels:
-        policy = policies.get_policy_for(channel)
+        policy = policies.get_policy_for(channel, channels)
         if not policy:
             continue
 
